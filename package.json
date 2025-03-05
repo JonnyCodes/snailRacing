@@ -18,7 +18,7 @@
   },
   "scripts": {
     "start": "parcel 'src/*' --open",
-    "build": "rm -rf .parcel-cache && rm -rf dist && parcel build src/*.html",
+    "build": "rm -rf .parcel-cache && rm -rf dist && parcel build src/*.html --public-url ./",
     "deploy": "gh-pages -d dist"
   }
 }
