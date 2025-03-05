@@ -12,11 +12,13 @@
     "typescript": "5.4.5"
   },
   "devDependencies": {
+    "gh-pages": "^6.3.0",
     "parcel": "^2.8.3",
     "parcel-reporter-static-files-copy": "^1.5.0"
   },
   "scripts": {
     "start": "parcel 'src/*' --open",
-    "build": "rm -rf .parcel-cache && rm -rf dist && parcel build src/*.html"
+    "build": "rm -rf .parcel-cache && rm -rf dist && parcel build src/*.html",
+    "deploy": "gh-pages -d dist"
   }
 }
