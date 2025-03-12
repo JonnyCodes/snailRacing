@@ -29,6 +29,9 @@ const snailArray = new Proxy([] as {name: string, color: string, number: number 
             });
 
             snailConfigDiv.innerHTML = innerHTML + "</ul>";
+
+            addSnailBtn.disabled = target.length === 8;
+            playButton.disabled = !(target.length > 0);
         }
 
         return true
@@ -46,10 +49,6 @@ addSnailBtn.addEventListener("click", () => {
     snailArray.push({ name: encodeURIComponent(snailName), color: encodeURIComponent(snailColor), number: snailNumber })
     nameInput.value = "";
     colorInput.value = "#000000"; 
-
-    if (snailArray.length === 8) {
-        addSnailBtn.disabled = true;
-    }
 });
 
 const playButton: HTMLButtonElement = document.getElementById("play") as HTMLButtonElement;

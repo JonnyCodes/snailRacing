@@ -6,8 +6,10 @@
     <body>
         <h1>Snail Racing</h1>
         <br>
-        <label for="raceLength">Race Length (seconds): </label>
-        <input id="raceLength" type="number" value="30"/>
+        <div class="slidecontainer">
+            <label for="raceLength">Race Length:</label>
+            <input  id="raceLength" type="range" min="10" max="60" value="30" class="slider">
+        </div>
         <br/>
         <label for="seed">Seed: </label>
         <input id="seed" type="string"/>
@@ -22,7 +24,7 @@
         <input id="addSnail" type="button" value="Add Snail">
         <br/>
         <br/>
-        <input id="play" type="button" value="Play">
+        <input id="play" type="button" value="Play" disabled="true">
 
         <script type="module" src="./config.ts"></script>
     </body>
