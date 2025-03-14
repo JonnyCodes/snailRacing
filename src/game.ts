@@ -1,22 +1,25 @@
 import { Application, ApplicationOptions, Container, Sprite, Assets, Ticker, Texture, Text } from "pixi.js";
 import { CameraContainer, ParallaxChild } from "./cameraContainer";
-import { ISnailConfig, Snail } from "./snail";
+import { Snail } from "./snail";
 import { Loadable } from "./loadable";
 import { getConfigValue } from "./utils";
 import gsap, { Sine } from "gsap";
 import seedrandom from "seedrandom";
 
+// types
+import { ISnail } from "types/snail";
+
 export interface GameProps {
-    snailConfigs: ISnailConfig[],
-    raceLength: number,
-    randomSeed?: string,
-    onComplete?: (finishers: Finisher[]) => void,
-};
+    snails: ISnail[];
+    raceLength: number;
+    randomSeed?: string;
+    onComplete?: (finishers: Finisher[]) => void;
+}
 
 export type Finisher = {
-    snail: ISnailConfig,
+    snail: ISnail;
     time: number;
-}
+};
 
 export class Game {
     private app: Application;
@@ -59,7 +62,7 @@ export class Game {
             seedrandom(props.randomSeed, { global: true });
         }
 
-        props.snailConfigs.forEach((config) => {
+        props.snails.forEach((config) => {
             this.snails.push(new Snail(config));
         });
     }
@@ -74,77 +77,105 @@ export class Game {
 
         await Promise.all(loadPromises);
 
-        await Assets.load({ alias: "cloudLayer", src: "./cloudLayer1.png"});
-        await Assets.load({ alias: "backgroundMountains", src: "./mountains.png"});
-        await Assets.load({ alias: "hills", src: "./hills.png"});
-        await Assets.load({ alias: "groundLayer", src: "./groundLayer1.png"});
-        await Assets.load({ alias: "cloud1", src: "./cloud1.png"});
-        await Assets.load({ alias: "cloud2", src: "./cloud2.png"});
-        await Assets.load({ alias: "cloud3", src: "./cloud3.png"});
-        await Assets.load({ alias: "cloud4", src: "./cloud4.png"});
-        await Assets.load({ alias: "signage", src: "./signage.png"});
-        await Assets.load({ alias: "ground", src: "./ground.png"});
-        await Assets.load({ alias: "line", src: "./line.png"});
+        await Assets.load({ alias: "cloudLayer", src: "./cloudLayer1.png" });
+        await Assets.load({ alias: "backgroundMountains", src: "./mountains.png" });
+        await Assets.load({ alias: "hills", src: "./hills.png" });
+        await Assets.load({ alias: "groundLayer", src: "./groundLayer1.png" });
+        await Assets.load({ alias: "cloud1", src: "./cloud1.png" });
+        await Assets.load({ alias: "cloud2", src: "./cloud2.png" });
+        await Assets.load({ alias: "cloud3", src: "./cloud3.png" });
+        await Assets.load({ alias: "cloud4", src: "./cloud4.png" });
+        await Assets.load({ alias: "signage", src: "./signage.png" });
+        await Assets.load({ alias: "ground", src: "./ground.png" });
+        await Assets.load({ alias: "line", src: "./line.png" });
     }
 
     public init(config?: Partial<ApplicationOptions>) {
-        this.app.init({
-            resizeTo: window,
-            backgroundColor: 0xb7e7fa,
-            sharedTicker: true,
-            ...config,
-        }).then(() => {
-            document.body.appendChild(this.app.canvas);
+        this.app
+            .init({
+                resizeTo: window,
+                backgroundColor: 0xb7e7fa,
+                sharedTicker: true,
+                ...config,
+            })
+            .then(() => {
+                document.body.appendChild(this.app.canvas);
 
-            this.finishLineXPos = this.raceLength + this.app.canvas.width * 0.75;
+                this.finishLineXPos = this.raceLength + this.app.canvas.width * 0.75;
 
-            this.stage.addChild(this.cameraContainer);
+                this.stage.addChild(this.cameraContainer);
 
-            const backgroundConfig = [
-                { textureName: "cloudLayer", zIndex: 0.05, x: "tiled", y: 10 },
-                { textureName: "backgroundMountains", zIndex: 0.1, x: "tiled", y: 20, tint: 0xddebe2 },
-                { textureName: "hills", zIndex: 0.2, x: "tiled", y: 175, tint: 0xafd6be },
-                { textureName: "groundLayer", zIndex: 0.5, x: "tiled", y: 275, tint: 0x7dba68 },
-                { textureName: "cloud1", zIndex: 0.11, x: {min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.11}, y: {min: -25, max: 200}},
-                { textureName: "cloud2", zIndex: 0.22, x: {min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.22}, y: {min: -25, max: 200}},
-                { textureName: "cloud3", zIndex: 0.33, x: {min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.33}, y: {min: -25, max: 200}},
-                { textureName: "cloud4", zIndex: 0.44, x: {min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.44}, y: {min: -25, max: 200}},
-                { textureName: "signage", zIndex: 1, x: "tiled", y: 350},
-                { textureName: "ground", zIndex: 1, x: "tiled", y: 510},
-                { textureName: "line", zIndex: 1, x: 200, y: 510},
-                { textureName: "line", zIndex: 1, x: this.finishLineXPos, y: 510},
-            ];
+                const backgroundConfig = [
+                    { textureName: "cloudLayer", zIndex: 0.05, x: "tiled", y: 10 },
+                    { textureName: "backgroundMountains", zIndex: 0.1, x: "tiled", y: 20, tint: 0xddebe2 },
+                    { textureName: "hills", zIndex: 0.2, x: "tiled", y: 175, tint: 0xafd6be },
+                    { textureName: "groundLayer", zIndex: 0.5, x: "tiled", y: 275, tint: 0x7dba68 },
+                    {
+                        textureName: "cloud1",
+                        zIndex: 0.11,
+                        x: { min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.11 },
+                        y: { min: -25, max: 200 },
+                    },
+                    {
+                        textureName: "cloud2",
+                        zIndex: 0.22,
+                        x: { min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.22 },
+                        y: { min: -25, max: 200 },
+                    },
+                    {
+                        textureName: "cloud3",
+                        zIndex: 0.33,
+                        x: { min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.33 },
+                        y: { min: -25, max: 200 },
+                    },
+                    {
+                        textureName: "cloud4",
+                        zIndex: 0.44,
+                        x: { min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.44 },
+                        y: { min: -25, max: 200 },
+                    },
+                    { textureName: "signage", zIndex: 1, x: "tiled", y: 350 },
+                    { textureName: "ground", zIndex: 1, x: "tiled", y: 510 },
+                    { textureName: "line", zIndex: 1, x: 200, y: 510 },
+                    { textureName: "line", zIndex: 1, x: this.finishLineXPos, y: 510 },
+                ];
 
-            backgroundConfig.forEach((config) => {
-                const texture = Texture.from(config.textureName);
-                let numSprites = 1;
-                if (config.x === "tiled") {
-                    numSprites = Math.ceil((this.app.canvas.width / texture.width) + (this.cameraContainer.fullWidth / texture.width) * getConfigValue(config.zIndex));
-                }
-                
-                const child = new ParallaxChild();
-                for (let i = 0; i < numSprites; i++) {
-                    const sprite = Sprite.from(texture);
+                backgroundConfig.forEach((config) => {
+                    const texture = Texture.from(config.textureName);
+                    let numSprites = 1;
+                    if (config.x === "tiled") {
+                        numSprites = Math.ceil(
+                            this.app.canvas.width / texture.width +
+                                (this.cameraContainer.fullWidth / texture.width) * getConfigValue(config.zIndex)
+                        );
+                    }
 
-                    const xPos = config.x === "tiled" ? sprite.width * i : getConfigValue(config.x as number | {min: number, max: number});
-                    sprite.position.set(xPos, getConfigValue(config.y));
-                    sprite.tint = config.tint ?? 0xffffff;
-                    child.addChild(sprite);
-                }
+                    const child = new ParallaxChild();
+                    for (let i = 0; i < numSprites; i++) {
+                        const sprite = Sprite.from(texture);
 
-                this.cameraContainer.addChildAtZ(child, getConfigValue(config.zIndex));
+                        const xPos =
+                            config.x === "tiled"
+                                ? sprite.width * i
+                                : getConfigValue(config.x as number | { min: number; max: number });
+                        sprite.position.set(xPos, getConfigValue(config.y));
+                        sprite.tint = config.tint ?? 0xffffff;
+                        child.addChild(sprite);
+                    }
+
+                    this.cameraContainer.addChildAtZ(child, getConfigValue(config.zIndex));
+                });
+
+                // Add snails to starting line
+                this.snails.reverse().forEach((snail, index) => {
+                    this.cameraContainer.addChildAtZ(snail.create());
+                    snail.updatePositionBy(130 + index * -10, 400 + index * (300 / this.snails.length), true);
+                });
+
+                Ticker.shared.add((ticker: Ticker) => this.update(ticker));
+
+                this.startCountdownText(5, () => (this.raceStarted = true));
             });
-
-            // Add snails to starting line
-            this.snails.reverse().forEach((snail, index) => {
-                this.cameraContainer.addChildAtZ(snail.create());
-                snail.updatePositionBy(130 + index * -10, 400 + index * (300 / this.snails.length), true);
-            });
-
-            Ticker.shared.add((ticker: Ticker) => this.update(ticker));
-
-            this.startCountdownText(5, () => this.raceStarted = true);
-        });
     }
 
     private startCountdownText(val: number, callback: () => void) {
@@ -154,8 +185,8 @@ export class Game {
                 fill: val === 3 ? 0xff0000 : val === 2 ? 0xff8800 : val === 1 ? 0x00ff00 : 0xffffff,
                 fontSize: 500,
                 fontWeight: "bold",
-                stroke: { color: 0x000000, width: 5, join: 'round' },
-            }
+                stroke: { color: 0x000000, width: 5, join: "round" },
+            },
         });
 
         text.anchor.set(0.5);
@@ -167,24 +198,28 @@ export class Game {
             ease: Sine.easeIn,
         });
 
-        return gsap.fromTo(text.scale, {
-            x: 0,
-            y: 0,
-        }, {
-            duration: 1,
-            x: 1,
-            y: 1,
-            ease: Sine.easeOut,
-            onComplete: () => {
-                this.stage.removeChild(text);
+        return gsap.fromTo(
+            text.scale,
+            {
+                x: 0,
+                y: 0,
+            },
+            {
+                duration: 1,
+                x: 1,
+                y: 1,
+                ease: Sine.easeOut,
+                onComplete: () => {
+                    this.stage.removeChild(text);
 
-                if (val === 1) {
-                    callback();
-                } else {
-                    this.startCountdownText(val - 1, callback);
-                }
+                    if (val === 1) {
+                        callback();
+                    } else {
+                        this.startCountdownText(val - 1, callback);
+                    }
+                },
             }
-        });
+        );
     }
 
     private finishRace() {
@@ -196,8 +231,8 @@ export class Game {
                 fill: 0xffffff,
                 fontSize: 500,
                 fontWeight: "bold",
-                stroke: { color: 0x000000, width: 5, join: 'round' },
-            }
+                stroke: { color: 0x000000, width: 5, join: "round" },
+            },
         });
 
         text.anchor.set(0.5);
@@ -218,11 +253,11 @@ export class Game {
         if (!this.showResults) {
             this.elapsedMS += ticker.elapsedMS;
             this.tickCount += ticker.elapsedMS;
-    
+
             if (this.raceStarted) {
                 if (this.tickCount > this.tickLengthMS) {
                     this.tickCount = 0;
-    
+
                     this.snails.forEach((snail) => {
                         snail.changeSpeed();
                     });
@@ -234,31 +269,34 @@ export class Game {
                 this.snails.forEach((snail: Snail) => {
                     snail.update(ticker.deltaTime);
 
-                    if (snail.container.originalPosition.x + (snail.container.width / 3) > this.finishLineXPos && !snail.finished) {
+                    if (
+                        snail.container.originalPosition.x + snail.container.width / 3 > this.finishLineXPos &&
+                        !snail.finished
+                    ) {
                         snail.finished = true;
-    
+
                         this.finishers.push({
                             snail: snail.config,
                             time: this.elapsedMS,
                         });
-    
+
                         if (!this.raceComplete && this.finishers.length === this.snails.length) {
                             this.raceComplete = true;
                             setTimeout(() => this.finishRace(), 2000);
-                        } 
+                        }
                     }
                 });
             }
-    
+
             // Follow the snail in front
             const frontSnail = this.snails.reduce((prev: Snail, curr: Snail) => {
                 if (prev.container.originalPosition.x >= curr.container.originalPosition.x) {
-                    return prev
+                    return prev;
                 }
-                
+
                 return curr;
             }, this.snails[0]);
-            this.cameraContainer.moveCameraTo(frontSnail.container.originalPosition.x - (this.app.canvas.width / 2), 0);
+            this.cameraContainer.moveCameraTo(frontSnail.container.originalPosition.x - this.app.canvas.width / 2, 0);
         }
     }
 }
