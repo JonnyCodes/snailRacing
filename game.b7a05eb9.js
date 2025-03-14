@@ -2947,18 +2947,16 @@ process.umask = function() {
 },{}],"jeorp":[function(require,module,exports) {
 var _game = require("./game");
 var _utils = require("./utils");
-const onComplete = (finishers)=>{
-    const urlFinishers = finishers.map((finisher)=>{
+const onComplete = (snails)=>{
+    const urlSnails = snails.map((snail)=>{
         return {
-            snail: {
-                ...finisher.snail,
-                name: encodeURIComponent(finisher.snail.name),
-                color: encodeURIComponent(finisher.snail.color)
-            },
-            time: finisher.time
+            ...snail,
+            name: encodeURIComponent(snail.name),
+            color: encodeURIComponent(snail.color),
+            time: snail.time
         };
     });
-    window.location.href = `./finished.html?snailsConfig={"snails":${JSON.stringify(urlFinishers)}}`;
+    window.location.href = `./finished.html?snails=${JSON.stringify(urlSnails)}`;
 };
 const urlParams = new URLSearchParams(window.location.search);
 const raceLength = urlParams.has("length") ? parseInt(urlParams.get("length")) : 30;
@@ -3276,7 +3274,7 @@ class Game {
                     if (snail.container.originalPosition.x + snail.container.width / 3 > this.finishLineXPos && !snail.finished) {
                         snail.finished = true;
                         this.finishers.push({
-                            snail: snail.config,
+                            ...snail.config,
                             time: this.elapsedMS
                         });
                         if (!this.raceComplete && this.finishers.length === this.snails.length) {

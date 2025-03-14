@@ -1,2 +1,0 @@
-const e=JSON.parse(new URLSearchParams(window.location.search).get("snailsConfig")).snails;e.sort((e,n)=>e.time-n.time),console.log(e);const n=document.getElementById("finishers");let o="<ol>";e.forEach(e=>{o+=`<li><span style="color:${decodeURIComponent(e.snail.color)};" id="name">${decodeURIComponent(e.snail.name)}</span> <span id="time">${(e.time/1e3).toFixed(2)}</li>`}),o+="</ol>",n.innerHTML=o;
-//# sourceMappingURL=finished.387eedf6.js.map
