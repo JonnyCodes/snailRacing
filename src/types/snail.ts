@@ -3,3 +3,7 @@ export interface ISnail {
     color: string;
     number: number;
 }
+
+export interface ISnailWithTime extends ISnail {
+    time: number;
+}

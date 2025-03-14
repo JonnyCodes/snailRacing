@@ -7,19 +7,14 @@ import gsap, { Sine } from "gsap";
 import seedrandom from "seedrandom";
 
 // types
-import { ISnail } from "types/snail";
+import { ISnail, ISnailWithTime } from "types/snail";
 
 export interface GameProps {
     snails: ISnail[];
     raceLength: number;
     randomSeed?: string;
-    onComplete?: (finishers: Finisher[]) => void;
+    onComplete?: (snails: ISnailWithTime[]) => void;
 }
-
-export type Finisher = {
-    snail: ISnail;
-    time: number;
-};
 
 export class Game {
     private app: Application;
@@ -31,14 +26,14 @@ export class Game {
     private raceComplete: boolean;
     private showResults: boolean;
     private finishLineXPos: number;
-    private finishers: Finisher[];
+    private finishers: ISnailWithTime[];
 
     private cameraContainer: CameraContainer;
     private elapsedMS: number;
     private tickCount: number;
     private tickLengthMS: number;
 
-    private onCompleteCallback?: (finishers: Finisher[]) => void;
+    private onCompleteCallback?: (snails: ISnailWithTime[]) => void;
 
     constructor(props: GameProps) {
         this.app = new Application();
@@ -276,7 +271,7 @@ export class Game {
                         snail.finished = true;
 
                         this.finishers.push({
-                            snail: snail.config,
+                            ...snail.config,
                             time: this.elapsedMS,
                         });
 

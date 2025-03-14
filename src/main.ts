@@ -1,19 +1,18 @@
-import { Finisher, Game } from "./game";
+import { ISnailWithTime } from "types/snail";
+import { Game } from "./game";
 import { getRandomSeed } from "./utils";
 
-const onComplete = (finishers: Finisher[]) => {
-    const urlFinishers = finishers.map((finisher) => {
+const onComplete = (snails: ISnailWithTime[]) => {
+    const urlSnails = snails.map((snail) => {
         return {
-            snail: {
-                ...finisher.snail,
-                name: encodeURIComponent(finisher.snail.name),
-                color: encodeURIComponent(finisher.snail.color),
-            },
-            time: finisher.time,
+            ...snail,
+            name: encodeURIComponent(snail.name),
+            color: encodeURIComponent(snail.color),
+            time: snail.time,
         };
     });
 
-    window.location.href = `./finished.html?snailsConfig={"snails":${JSON.stringify(urlFinishers)}}`;
+    window.location.href = `./finished.html?snails=${JSON.stringify(urlSnails)}`;
 };
 
 const urlParams = new URLSearchParams(window.location.search);
