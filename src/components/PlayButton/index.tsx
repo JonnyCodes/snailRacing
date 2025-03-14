@@ -7,7 +7,7 @@ export const PlayButton = () => {
         const seed = localStorage.getItem("seed");
         const raceLength = localStorage.getItem("raceLength");
 
-        window.location.href = `/game.html?raceLength=${raceLength}&seed=${seed}&snails=${snails}`;
+        window.location.href = `./game.html?raceLength=${raceLength}&seed=${seed}&snails=${snails}`;
     };
 
     return (
