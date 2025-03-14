@@ -1,31 +1,13 @@
 <html>
     <head>
         <title>Snail Racing</title>
-        <link rel="stylesheet" href="./styles.css">
+        <link rel="stylesheet" href="./styles.css" />
     </head>
     <body>
         <h1>Snail Racing</h1>
-        <br>
-        <div class="slidecontainer">
-            <label for="raceLength">Race Length:</label>
-            <input  id="raceLength" type="range" min="10" max="60" value="30" class="slider">
-        </div>
-        <br/>
-        <label for="seed">Seed: </label>
-        <input id="seed" type="string"/>
-        <input id="randomSeedButton" type="button" value="Randomize"> 
-        <br/>
-        <br/>
-        <h3>Snails:</h3>
-        <input id="snailName" type="text" placeholder="Name">
-        <input id="snailColor" type="color">
-        <br/>
-        <div id="snails"></div>
-        <input id="addSnail" type="button" value="Add Snail">
-        <br/>
-        <br/>
-        <input id="play" type="button" value="Play" disabled="true">
 
-        <script type="module" src="./config.ts"></script>
+        <div id="app"></div>
+
+        <script type="module" src="./pages/index.tsx"></script>
     </body>
 </html>

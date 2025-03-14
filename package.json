@@ -1,24 +1,29 @@
 {
-  "name": "snail-racing",
-  "version": "1.0.0",
-  "description": "A small configurable snail racing simulator",
-  "author": "Jonny Blackburn",
-  "license": "ISC",
-  "dependencies": {
-    "@types/seedrandom": "^3.0.8",
-    "gsap": "^3.12.5",
-    "pixi.js": "8.1.2",
-    "seedrandom": "^3.0.5",
-    "typescript": "5.4.5"
-  },
-  "devDependencies": {
-    "gh-pages": "^6.3.0",
-    "parcel": "^2.8.3",
-    "parcel-reporter-static-files-copy": "^1.5.0"
-  },
-  "scripts": {
-    "start": "parcel 'src/*' --open",
-    "build": "rm -rf .parcel-cache && rm -rf dist && parcel build src/*.html --public-url ./",
-    "deploy": "gh-pages -d dist"
-  }
+    "name": "snail-racing",
+    "version": "1.0.0",
+    "description": "A small configurable snail racing simulator",
+    "author": "Jonny Blackburn",
+    "license": "ISC",
+    "dependencies": {
+        "@types/seedrandom": "^3.0.8",
+        "gsap": "^3.12.5",
+        "pixi.js": "8.1.2",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "seedrandom": "^3.0.5",
+        "typescript": "5.4.5"
+    },
+    "devDependencies": {
+        "@types/react": "^19.0.10",
+        "@types/react-dom": "^19.0.4",
+        "gh-pages": "^6.3.0",
+        "parcel": "^2.8.3",
+        "parcel-reporter-static-files-copy": "^1.5.0",
+        "process": "^0.11.10"
+    },
+    "scripts": {
+        "start": "parcel 'src/*.html' --open",
+        "build": "rm -rf .parcel-cache && rm -rf dist && parcel build src/*.html --public-url ./",
+        "deploy": "gh-pages -d dist"
+    }
 }

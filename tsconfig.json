@@ -1,24 +1,25 @@
 {
-  "compilerOptions": {
-    "baseUrl": "./src",
-    "paths": {
-      "~/*": ["../*"]
+    "compilerOptions": {
+        "baseUrl": "./src",
+        "paths": {
+            "~/*": ["../*"]
+        },
+        "jsx": "preserve",
+        "typeRoots": ["node_modules/@types"],
+        "target": "ES2021",
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "allowJs": true,
+        "skipLibCheck": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "module": "esnext",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+        "sourceMap": true
     },
-    "typeRoots": ["node_modules/@types"],
-    "target": "ES2021",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "sourceMap": true,
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "build"]
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "build"]
 }

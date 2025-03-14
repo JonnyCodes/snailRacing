@@ -1,0 +1,43 @@
+.snails {
+    max-width: 400px;
+    margin: 0 auto;
+    margin-bottom: 30px;
+}
+
+.snails__add {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.snails__add input {
+    width: 78%;
+}
+
+.snails__add input[type="color"] {
+    width: 19%;
+    height: 44px;
+}
+
+.snails__list {
+    padding: 10px;
+    border: 3px solid black;
+
+    list-style: none;
+}
+
+.snails__list li {
+    margin-bottom: 5px;
+}
+
+.snails__list li:last-child {
+    margin-bottom: 0;
+}
+
+.snails__list__delete {
+    margin-left: 10px;
+
+    cursor: pointer;
+}

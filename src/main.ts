@@ -9,27 +9,27 @@ const onComplete = (finishers: Finisher[]) => {
                 name: encodeURIComponent(finisher.snail.name),
                 color: encodeURIComponent(finisher.snail.color),
             },
-            time: finisher.time
-        }
+            time: finisher.time,
+        };
     });
 
-    window.location.href = `./finished.html?snailsConfig={"snails":${JSON.stringify(urlFinishers)}}`
-}
+    window.location.href = `./finished.html?snailsConfig={"snails":${JSON.stringify(urlFinishers)}}`;
+};
 
 const urlParams = new URLSearchParams(window.location.search);
 
 const raceLength: number = urlParams.has("length") ? parseInt(urlParams.get("length")!) : 30;
 const randomSeed: string = urlParams.has("seed") ? urlParams.get("seed")! : getRandomSeed();
-const snailsConfig = urlParams.has("snailsConfig") ? urlParams.get("snailsConfig")! : '{"snails":[{ "name": "Foo", "color": "#ff0000", "number": 1 }]}';
+const snailsConfig = urlParams.has("snails")
+    ? urlParams.get("snails")!
+    : '[{ "name": "Foo", "color": "#ff0000", "number": 1 }]';
 
 const game = new Game({
     raceLength: raceLength,
     randomSeed: randomSeed,
-    snailConfigs: JSON.parse(snailsConfig)["snails"],
+    snailConfigs: JSON.parse(snailsConfig),
     onComplete,
 });
 game.load().then(() => {
     game.init();
 });
-
-

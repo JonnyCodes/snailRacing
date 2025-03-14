@@ -1,9 +1,61 @@
 * {
-    margin: 0 auto;
-    font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
-    font-weight: normal;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-body {
-    margin: 1em;
+html {
+    font-family: Inter, Roboto, "Helvetica Neue", "Arial Nova", "Nimbus Sans", Arial, sans-serif;
+    font-weight: normal;
+    font-size: 16px;
+    line-height: 1.3;
+}
+
+h1,
+h2 {
+    margin-bottom: 10px;
+}
+
+h1 {
+    text-align: center;
+}
+
+input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 3px solid black;
+    margin-bottom: 20px;
+
+    font-size: 1em;
+}
+
+input[type="color"] {
+    padding: 0;
+}
+
+button {
+    width: 100%;
+    padding: 10px 15px;
+    border: 3px solid black;
+    border-radius: 5px;
+
+    box-shadow: 2px 2px;
+
+    line-height: 1;
+    font-size: 1em;
+    font-weight: bold;
+
+    background-color: #1fdea8;
+
+    cursor: pointer;
+}
+
+button:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px;
+}
+
+button:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px;
 }
