@@ -1,1 +1,0 @@
-{"mappings":"AAAA;;;;;;AAMA","sources":["src/styles.css"],"sourcesContent":["* {\n    margin: 0 auto;\n    font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;\n    font-weight: normal;\n}\n\nbody {\n    margin: 1em;\n}"],"names":[],"version":3,"file":"styles.css.map","sourceRoot":"/__parcel_source_root/"}
