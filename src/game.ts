@@ -1,8 +1,7 @@
 import { Application, ApplicationOptions, Container, Sprite, Assets, Ticker, Texture, Text } from "pixi.js";
 import { CameraContainer, ParallaxChild } from "./cameraContainer";
 import { Snail } from "./snail";
-import { Loadable } from "./loadable";
-import { getConfigValue } from "./utils";
+import { getConfigValue, randomIntBetween } from "./utils";
 import gsap, { Sine } from "gsap";
 import seedrandom from "seedrandom";
 
@@ -63,11 +62,10 @@ export class Game {
     }
 
     public async load() {
-        const loadables: Loadable[] = [...this.snails];
-
         const loadPromises: Promise<void>[] = [];
-        loadables.forEach((loadable) => {
-            loadPromises.push(loadable.load());
+        this.snails.forEach((snail) => {
+            const rand = randomIntBetween(1, 6);
+            loadPromises.push(snail.load(rand));
         });
 
         await Promise.all(loadPromises);
