@@ -21,7 +21,7 @@ export const Snails = () => {
 
     const addSnail = (name: string, colour: string) => {
         const newSnail: ISnail = {
-            name: encodeURIComponent(name),
+            name: name.length ? encodeURIComponent(name) : encodeURIComponent(`Snail ${snails.length + 1}`),
             color: encodeURIComponent(colour),
             number: snails.length + 1,
         };
@@ -69,7 +69,7 @@ export const Snails = () => {
             <ul className="snails__list">
                 {snails.map((snail: ISnail) => (
                     <li key={snail.number}>
-                        {snail.number}: <span style={{ color: decodeURIComponent(snail.color) }}>{snail.name}</span>{" "}
+                        {snail.number}: <span style={{ color: decodeURIComponent(snail.color) }}>{decodeURIComponent(snail.name)}</span>{" "}
                         <span className="snails__list__delete" onClick={() => removeSnail(snail.number)}>
                             X
                         </span>
