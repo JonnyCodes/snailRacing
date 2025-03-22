@@ -234,14 +234,11 @@ export class Game {
         text.position.set(this.app.canvas.width / 2, this.app.canvas.height / 2);
         this.stage.addChild(text);
 
-        console.log("FIN");
-
         setTimeout(() => {
-            console.log("IM FINISHED!!");
             if (this.onCompleteCallback) {
                 this.onCompleteCallback(this.finishers);
             }
-        }, 3000);
+        }, 2000);
     }
 
     private update(ticker: Ticker) {

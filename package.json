@@ -22,7 +22,7 @@
         "process": "^0.11.10"
     },
     "scripts": {
-        "start": "parcel 'src/*.html' --open",
+        "start": "parcel 'src/**/*.html' --open",
         "build": "rm -rf .parcel-cache && rm -rf dist && parcel build src/*.html --public-url ./",
         "deploy": "gh-pages -d dist"
     }
