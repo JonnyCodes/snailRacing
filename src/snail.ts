@@ -11,9 +11,9 @@ export class Snail {
     private static MAX_SPEED = 20;
 
     public finished: boolean;
+    public bodyAssetNum: number;
 
     private _snail: ISnail;
-    private _bodyAssetAlias: string;
     private _container: ParallaxChild;
     private _speedTween?: gsap.core.Tween;
     private _speed: number;
@@ -31,7 +31,7 @@ export class Snail {
 
     constructor(snail: ISnail) {
         this._snail = snail;
-        this._bodyAssetAlias = "snailBody1"
+        this.bodyAssetNum = 1
         this._speed = randomIntBetween(Snail.MIN_SPEED, Snail.MAX_SPEED);
         this._currentMaxSpeed =
             Snail.MAX_SPEED -
@@ -46,8 +46,8 @@ export class Snail {
 
     // Random number to say which asset to load
     public async load(randAsset: number): Promise<void> {
-        this._bodyAssetAlias = `snailBody${randAsset}`;
-        await Assets.load({ alias: this._bodyAssetAlias, src: `./snail_body${randAsset}.png` });
+        this.bodyAssetNum = randAsset;
+        await Assets.load({ alias: `snailBody${this.bodyAssetNum}`, src: `./snail_body${randAsset}.png` });
         await Assets.load({ alias: "snailShell", src: "./snail_shell1.png" });
     }
 
@@ -57,7 +57,7 @@ export class Snail {
         shell.position.set(0, 30);
         this._container.addChild(shell);
 
-        const body = new MeshPlane({ texture: Assets.get(this._bodyAssetAlias), verticesX: 10, verticesY: 10 });
+        const body = new MeshPlane({ texture: Assets.get(`snailBody${this.bodyAssetNum}`), verticesX: 10, verticesY: 10 });
         this._container.addChild(body);
         this._meshBuffer = body.geometry.getAttribute('aPosition').buffer;
 

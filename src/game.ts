@@ -68,19 +68,19 @@ export class Game {
             loadPromises.push(snail.load(rand));
         });
 
-        await Promise.all(loadPromises);
+        loadPromises.push(Assets.load({ alias: "cloudLayer", src: "./cloudLayer1.png" }));
+        loadPromises.push(Assets.load({ alias: "backgroundMountains", src: "./mountains.png" }));
+        loadPromises.push(Assets.load({ alias: "hills", src: "./hills.png" }));
+        loadPromises.push(Assets.load({ alias: "groundLayer", src: "./groundLayer1.png" }));
+        loadPromises.push(Assets.load({ alias: "cloud1", src: "./cloud1.png" }));
+        loadPromises.push(Assets.load({ alias: "cloud2", src: "./cloud2.png" }));
+        loadPromises.push(Assets.load({ alias: "cloud3", src: "./cloud3.png" }));
+        loadPromises.push(Assets.load({ alias: "cloud4", src: "./cloud4.png" }));
+        loadPromises.push(Assets.load({ alias: "signage", src: "./signage.png" }));
+        loadPromises.push(Assets.load({ alias: "ground", src: "./ground.png" }));
+        loadPromises.push(Assets.load({ alias: "line", src: "./line.png" }));
 
-        await Assets.load({ alias: "cloudLayer", src: "./cloudLayer1.png" });
-        await Assets.load({ alias: "backgroundMountains", src: "./mountains.png" });
-        await Assets.load({ alias: "hills", src: "./hills.png" });
-        await Assets.load({ alias: "groundLayer", src: "./groundLayer1.png" });
-        await Assets.load({ alias: "cloud1", src: "./cloud1.png" });
-        await Assets.load({ alias: "cloud2", src: "./cloud2.png" });
-        await Assets.load({ alias: "cloud3", src: "./cloud3.png" });
-        await Assets.load({ alias: "cloud4", src: "./cloud4.png" });
-        await Assets.load({ alias: "signage", src: "./signage.png" });
-        await Assets.load({ alias: "ground", src: "./ground.png" });
-        await Assets.load({ alias: "line", src: "./line.png" });
+        await Promise.all(loadPromises);
     }
 
     public init(config?: Partial<ApplicationOptions>) {
@@ -241,10 +241,10 @@ export class Game {
 
     private update(ticker: Ticker) {
         if (!this.showResults) {
-            this.elapsedMS += ticker.elapsedMS;
             this.tickCount += ticker.elapsedMS;
 
             if (this.raceStarted) {
+                this.elapsedMS += ticker.elapsedMS;
                 if (this.tickCount > this.tickLengthMS) {
                     this.tickCount = 0;
 
@@ -268,6 +268,7 @@ export class Game {
                         this.finishers.push({
                             ...snail.config,
                             time: this.elapsedMS,
+                            bodyAssetNum: snail.bodyAssetNum,
                         });
 
                         if (!this.raceComplete && this.finishers.length === this.snails.length) {

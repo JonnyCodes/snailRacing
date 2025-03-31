@@ -6,4 +6,5 @@ export interface ISnail {
 
 export interface ISnailWithTime extends ISnail {
     time: number;
+    bodyAssetNum: number,
 }
