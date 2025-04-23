@@ -1,5 +1,8 @@
 import { Point } from "pixi.js";
 
+// types
+import { Range } from "types/backgroundConfig";
+
 export const randomIntBetween = (min: number, max: number) => {
     return Math.floor(Math.random() * (max - min) + min);
 };
@@ -20,14 +23,17 @@ export const clamp = (val: number, min: number, max: number) => {
     return Math.max(Math.min(val, Math.max(min, max)), Math.min(min, max));
 };
 
-export const getConfigValue = (val: number | { min: number; max: number }): number => {
+export const getConfigValue = (val?: number | Range): number => {
     if (typeof val === "number") {
         return val;
-    } else if (typeof val.min === "number" && typeof val.max === "number") {
-        return randomFloatBetween(val.min, val.max);
-    } else {
-        return 1;
     }
+    
+    if (typeof val?.min === "number" && typeof val?.max === "number") {
+        return randomFloatBetween(val.min, val.max);
+    }
+    
+    // Final option
+    return 0;
 };
 
 export const randomHexColor = () => {

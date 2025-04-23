@@ -1,4 +1,4 @@
-import { Application, ApplicationOptions, Container, Sprite, Assets, Ticker, Texture, Text } from "pixi.js";
+import { Application, ApplicationOptions, Container, Sprite, Assets, Ticker, Texture, Text, Point, Graphics } from "pixi.js";
 import { CameraContainer, ParallaxChild } from "./cameraContainer";
 import { Snail } from "./snail";
 import { getConfigValue, randomIntBetween } from "./utils";
@@ -7,6 +7,7 @@ import seedrandom from "seedrandom";
 
 // types
 import { ISnail, ISnailWithTime } from "types/snail";
+import { BackgroundTexturesConfig } from "types/backgroundConfig";
 
 export interface GameProps {
     snails: ISnail[];
@@ -24,7 +25,7 @@ export class Game {
     private raceStarted: boolean;
     private raceComplete: boolean;
     private showResults: boolean;
-    private finishLineXPos: number;
+    private finishLineX: number;
     private finishers: ISnailWithTime[];
 
     private cameraContainer: CameraContainer;
@@ -48,7 +49,7 @@ export class Game {
 
         this.onCompleteCallback = props.onComplete;
 
-        this.finishLineXPos = 0; // Updated after the canvas has been created
+        this.finishLineX = 0; // Updated after the canvas has been created
         this.finishers = [];
 
         if (props.randomSeed !== undefined) {
@@ -77,8 +78,7 @@ export class Game {
         loadPromises.push(Assets.load({ alias: "cloud3", src: "./cloud3.png" }));
         loadPromises.push(Assets.load({ alias: "cloud4", src: "./cloud4.png" }));
         loadPromises.push(Assets.load({ alias: "signage", src: "./signage.png" }));
-        loadPromises.push(Assets.load({ alias: "ground", src: "./ground.png" }));
-        loadPromises.push(Assets.load({ alias: "line", src: "./line.png" }));
+        loadPromises.push(Assets.load({ alias: "track", src: "./track.png" }));
 
         await Promise.all(loadPromises);
     }
@@ -94,15 +94,17 @@ export class Game {
             .then(() => {
                 document.body.appendChild(this.app.canvas);
 
-                this.finishLineXPos = this.raceLength + this.app.canvas.width * 0.75;
+                const startLineX = 200;
+                const trackStartY = 400;
+                this.finishLineX = this.raceLength + this.app.canvas.width * 0.75;
 
                 this.stage.addChild(this.cameraContainer);
 
-                const backgroundConfig = [
-                    { textureName: "cloudLayer", zIndex: 0.05, x: "tiled", y: 10 },
-                    { textureName: "backgroundMountains", zIndex: 0.1, x: "tiled", y: 20, tint: 0xddebe2 },
-                    { textureName: "hills", zIndex: 0.2, x: "tiled", y: 175, tint: 0xafd6be },
-                    { textureName: "groundLayer", zIndex: 0.5, x: "tiled", y: 275, tint: 0x7dba68 },
+                const backgroundConfig: BackgroundTexturesConfig[] = [
+                    { textureName: "cloudLayer", zIndex: 0.01, x: "tiled", y: 0 },
+                    { textureName: "backgroundMountains", zIndex: 0.05, x: "tiled", y: 10, tint: 0xddebe2 },
+                    { textureName: "hills", zIndex: 0.075, x: "tiled", y: 100, tint: 0xafd6be },
+                    { textureName: "groundLayer", zIndex: 0.1, x: "tiled", y: 175, tint: 0x7dba68 },
                     {
                         textureName: "cloud1",
                         zIndex: 0.11,
@@ -127,42 +129,85 @@ export class Game {
                         x: { min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.44 },
                         y: { min: -25, max: 200 },
                     },
-                    { textureName: "signage", zIndex: 1, x: "tiled", y: 350 },
-                    { textureName: "ground", zIndex: 1, x: "tiled", y: 510 },
-                    { textureName: "line", zIndex: 1, x: 200, y: 510 },
-                    { textureName: "line", zIndex: 1, x: this.finishLineXPos, y: 510 },
+                    { textureName: "signage", zIndex: 1, x: "tiled", y: trackStartY - 160 },
+                    { textureName: "track", zIndex: 1, x: "tiled", y: "tiled", offsetY: trackStartY },
                 ];
 
                 backgroundConfig.forEach((config) => {
                     const texture = Texture.from(config.textureName);
-                    let numSprites = 1;
+                    let numSprites = new Point(1);
                     if (config.x === "tiled") {
-                        numSprites = Math.ceil(
+                        numSprites.x = Math.ceil(
                             this.app.canvas.width / texture.width +
                                 (this.cameraContainer.fullWidth / texture.width) * getConfigValue(config.zIndex)
-                        );
+                        ) + 1; // Add 1 to make sure there is always enough sprites off the end of the screen
+                    }
+
+                    if (config.y === "tiled") {
+                        numSprites.y = Math.ceil(
+                            this.app.canvas.height / texture.height +
+                                (this.cameraContainer.fullHeight / texture.height) * getConfigValue(config.zIndex)
+                        ) + 1; // Add 1 to make sure there are aleays enough sprites off the bottom of the screen
                     }
 
                     const child = new ParallaxChild();
-                    for (let i = 0; i < numSprites; i++) {
+                    for (let x = 0; x < numSprites.x; x++) {
                         const sprite = Sprite.from(texture);
 
                         const xPos =
                             config.x === "tiled"
-                                ? sprite.width * i
-                                : getConfigValue(config.x as number | { min: number; max: number });
-                        sprite.position.set(xPos, getConfigValue(config.y));
-                        sprite.tint = config.tint ?? 0xffffff;
-                        child.addChild(sprite);
+                                ? sprite.width * x
+                                : getConfigValue(config.x);
+                        
+                        if (config.y === "tiled") {
+                            sprite.position.set(xPos + getConfigValue(config.offsetX), getConfigValue(config.offsetY));
+                            sprite.tint = config.tint ?? 0xffffff;
+                            child.addChild(sprite);
+
+                            /// Start at 1, done the top one above
+                            for (let y = 1; y < numSprites.y; y++) {
+                                const ySprite = Sprite.from(texture);
+
+                                const yPos = sprite.height * y;
+
+                                ySprite.position.set(xPos + getConfigValue(config.offsetX), yPos + getConfigValue(config.offsetY));
+                                ySprite.tint = config.tint ?? 0xffffff;
+                                child.addChild(ySprite);
+                            }
+                        } else {
+                            const yPos = getConfigValue(config.y);
+
+                            sprite.position.set(xPos + getConfigValue(config.offsetX), yPos + getConfigValue(config.offsetY));
+                            sprite.tint = config.tint ?? 0xffffff;
+                            child.addChild(sprite);
+                        }
                     }
 
                     this.cameraContainer.addChildAtZ(child, getConfigValue(config.zIndex));
                 });
 
+                // Add start line
+                const startLine = new ParallaxChild();
+                const startGraphics = new Graphics()
+                .moveTo(startLineX + 150, trackStartY)
+                .lineTo(startLineX + 100, this.app.canvas.height)
+                .stroke({ color: 0xffffff, width: 10 });
+                startLine.addChild(startGraphics);
+                this.cameraContainer.addChildAtZ(startLine, 1);
+
+                // Add finish line
+                const finishLine = new ParallaxChild();
+                const finishGraphics = new Graphics()
+                .moveTo(this.finishLineX, trackStartY)
+                .lineTo(this.finishLineX + 100, this.app.canvas.height)
+                .stroke({ color: 0xffffff, width: 10 });
+                finishLine.addChild(finishGraphics);
+                this.cameraContainer.addChildAtZ(finishLine, 1);
+
                 // Add snails to starting line
                 this.snails.reverse().forEach((snail, index) => {
                     this.cameraContainer.addChildAtZ(snail.create());
-                    snail.updatePositionBy(130 + index * -10, 400 + index * (300 / this.snails.length), true);
+                    snail.updatePositionBy((startLineX - 50) + index * -10, (trackStartY - snail.container.height * 0.8) + index * ((this.app.canvas.height - trackStartY) / this.snails.length), true);
                 });
 
                 Ticker.shared.add((ticker: Ticker) => this.update(ticker));
@@ -260,7 +305,7 @@ export class Game {
                     snail.update(ticker.deltaTime);
 
                     if (
-                        snail.container.originalPosition.x + snail.container.width / 3 > this.finishLineXPos &&
+                        snail.container.originalPosition.x + snail.container.width / 3 > this.finishLineX &&
                         !snail.finished
                     ) {
                         snail.finished = true;

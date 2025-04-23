@@ -4,13 +4,11 @@ export interface IParallaxLayer { [zIndex: number]: Container[] };
 
 export class ParallaxChild extends Container {
     public originalPosition: Point;
-    public originalScale: Point;
 
     constructor(childrenToAdd?: Container[]) {
         super();
 
         this.originalPosition = new Point();
-        this.originalScale = new Point(1);
 
         childrenToAdd?.forEach((child) => {
             this.addChild(child);
@@ -20,11 +18,6 @@ export class ParallaxChild extends Container {
     public updateOriginalPosition(x: number, y: number) {
         const pos = this.originalPosition;
         this.originalPosition.set(pos.x + x, pos.y + y);
-    }
-
-    public updateOriginalScale(x: number, y: number) {
-        const pos = this.originalScale;
-        this.originalScale.set(pos.x + x, pos.y + y);
     }
 }
 
@@ -85,15 +78,6 @@ export class CameraContainer extends Container {
 
         this.updateChildrenPositions();
     }
-
-    // TODO: This doesn't look good, need to respsect spacing on different zIndexs
-    // public setCameraZoom(zoom: number) {
-    //     this._container.children.forEach((child: ParallaxChild) => {
-    //         if (child.originalScale !== undefined) {
-    //             child.scale.set(child.originalScale.x + zoom, child.originalScale.y + zoom);
-    //         }
-    //     });
-    // }
 
     private updateChildrenPositions() {
         Object.keys(this._parallaxLayers).forEach((index) => {
