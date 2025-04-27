@@ -12,7 +12,10 @@ import { BackgroundTexturesConfig } from "types/backgroundConfig";
 export interface GameProps {
     snails: ISnail[];
     raceLength: number;
-    randomSeed?: string;
+    raceName: string | null;
+    raceSponsorName: string | null;
+    raceSponsorLogo: string | null;
+    randomSeed: string | null;
     onComplete?: (snails: ISnailWithTime[]) => void;
 }
 
@@ -21,7 +24,7 @@ export class Game {
     private stage: Container;
 
     private snails: Snail[];
-    private raceLength: number;
+    private raceDetails: {length: number, name?: string, sponsorName?: string, sponsorLogo?: string};
     private raceStarted: boolean;
     private raceComplete: boolean;
     private showResults: boolean;
@@ -42,8 +45,13 @@ export class Game {
         this.raceStarted = false;
         this.raceComplete = false;
         this.showResults = false;
-        this.raceLength = props.raceLength * 600;
-        this.cameraContainer = new CameraContainer(this.raceLength, window.innerHeight);
+        this.raceDetails = {
+            length: props.raceLength * 600,
+            name: props.raceName || undefined,
+            sponsorName: props.raceSponsorName || undefined,
+            sponsorLogo: props.raceSponsorLogo || undefined,
+        };
+        this.cameraContainer = new CameraContainer(this.raceDetails.length, window.innerHeight);
         this.elapsedMS = this.tickCount = 0;
         this.tickLengthMS = 1000;
 
@@ -52,7 +60,7 @@ export class Game {
         this.finishLineX = 0; // Updated after the canvas has been created
         this.finishers = [];
 
-        if (props.randomSeed !== undefined) {
+        if (props.randomSeed !== null) {
             // WARNING: This overrides Math.random!!
             seedrandom(props.randomSeed, { global: true });
         }
@@ -68,6 +76,9 @@ export class Game {
             const rand = randomIntBetween(1, 6);
             loadPromises.push(snail.load(rand));
         });
+
+        // Load the signage font
+        loadPromises.push(Assets.load({ alias: "Super Lobster", src: "./super_lobster.ttf" }));
 
         loadPromises.push(Assets.load({ alias: "cloudLayer", src: "./cloudLayer1.png" }));
         loadPromises.push(Assets.load({ alias: "backgroundMountains", src: "./mountains.png" }));
@@ -96,7 +107,7 @@ export class Game {
 
                 const startLineX = 200;
                 const trackStartY = 400;
-                this.finishLineX = this.raceLength + this.app.canvas.width * 0.75;
+                this.finishLineX = this.raceDetails.length + this.app.canvas.width * 0.75;
 
                 this.stage.addChild(this.cameraContainer);
 
@@ -109,25 +120,25 @@ export class Game {
                         textureName: "cloud1",
                         zIndex: 0.11,
                         x: { min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.11 },
-                        y: { min: -25, max: 200 },
+                        y: { min: -50, max: 100 },
                     },
                     {
                         textureName: "cloud2",
                         zIndex: 0.22,
                         x: { min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.22 },
-                        y: { min: -25, max: 200 },
+                        y: { min: -50, max: 100 },
                     },
                     {
                         textureName: "cloud3",
                         zIndex: 0.33,
                         x: { min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.33 },
-                        y: { min: -25, max: 200 },
+                        y: { min: -50, max: 100 },
                     },
                     {
                         textureName: "cloud4",
                         zIndex: 0.44,
                         x: { min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.44 },
-                        y: { min: -25, max: 200 },
+                        y: { min: -50, max: 100 },
                     },
                     { textureName: "signage", zIndex: 1, x: "tiled", y: trackStartY - 160 },
                     { textureName: "track", zIndex: 1, x: "tiled", y: "tiled", offsetY: trackStartY },
@@ -185,6 +196,35 @@ export class Game {
 
                     this.cameraContainer.addChildAtZ(child, getConfigValue(config.zIndex));
                 });
+
+                // Add race name and sponsor banners
+                if (this.raceDetails.name || this.raceDetails.sponsorName) {
+
+                    // This text object is used to measure the text and make calculations
+                    const raceNameText = new Text({
+                        text: `${this.raceDetails.name ?? ""}${!!this.raceDetails.name && !!this.raceDetails.sponsorName ? " sponsored by " : ""}${this.raceDetails.sponsorName ?? ""}`,
+                        style: {
+                            fill: 0xdddddd,
+                            fontFamily: "Super Lobster",
+                            fontSize: 120,
+                            fontWeight: "bold",
+                            stroke: { color: 0x004225, width: 10, join: "round" },
+                        },
+                    });
+                    
+                    const raceName = new ParallaxChild();
+                    const numBanners = Math.floor(this.finishLineX / (raceNameText.width * 2));
+                    for (let i = 1; i < numBanners + 1; i++) {
+                        const text = new Text({
+                            text: raceNameText.text,
+                            style: raceNameText.style
+                        });
+
+                        text.position.set(((this.finishLineX / (numBanners + 1)) * i) - (text.width / 2), 235);
+                        raceName.addChild(text);
+                    }
+                    this.cameraContainer.addChildAtZ(raceName, 1);
+                }
 
                 // Add start line
                 const startLine = new ParallaxChild();
@@ -263,25 +303,11 @@ export class Game {
     private finishRace() {
         this.showResults = true;
 
-        const text = new Text({
-            text: "FIN",
-            style: {
-                fill: 0xffffff,
-                fontSize: 500,
-                fontWeight: "bold",
-                stroke: { color: 0x000000, width: 5, join: "round" },
-            },
-        });
-
-        text.anchor.set(0.5);
-        text.position.set(this.app.canvas.width / 2, this.app.canvas.height / 2);
-        this.stage.addChild(text);
-
         setTimeout(() => {
             if (this.onCompleteCallback) {
                 this.onCompleteCallback(this.finishers);
             }
-        }, 2000);
+        }, 250);
     }
 
     private update(ticker: Ticker) {
@@ -318,7 +344,7 @@ export class Game {
 
                         if (!this.raceComplete && this.finishers.length === this.snails.length) {
                             this.raceComplete = true;
-                            setTimeout(() => this.finishRace(), 2000);
+                            setTimeout(() => this.finishRace(), 1250);
                         }
                     }
                 });

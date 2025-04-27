@@ -38,9 +38,7 @@ export class CameraContainer extends Container {
         this._parallaxLayers = {};
         this._cameraPosition = new Point(0, 0);
 
-        this.sortableChildren = true; // TODO: How to sort children
-
-        // TODO: Need to set the cullable area to screen size
+        this.sortableChildren = true;
     }
 
     public addChildAtZ(child: ParallaxChild, zIndex: number = 1) {

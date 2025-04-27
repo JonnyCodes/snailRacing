@@ -13,8 +13,10 @@ import { ISnail } from "types/snail";
 // styles
 import "./styles.css";
 
+export const SNAILS_KEY = "snails";
+
 export const Snails = () => {
-    const [snails, setSnails] = useLocalStorage("snails", []);
+    const [snails, setSnails] = useLocalStorage(SNAILS_KEY, []);
 
     const [name, setName] = useState("");
     const [colour, setColour] = useState(randomHexColor());
@@ -28,6 +30,7 @@ export const Snails = () => {
 
         setSnails([...snails, newSnail]);
 
+        // Reset field values
         setName("");
         setColour(randomHexColor());
     };

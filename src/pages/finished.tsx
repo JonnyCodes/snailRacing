@@ -1,7 +1,12 @@
+// libraries
+import React from "react";
+import { createRoot } from "react-dom/client";
+import { Application, Assets, Container, Graphics, Point, Sprite, Text } from "pixi.js";
+
 // types
 import { ISnailWithTime } from "types/snail";
-import { Application, Assets, Container, Graphics, Point, Sprite, Text } from "pixi.js";
 import { Snail } from "../snail";
+import { RACE_SPONSOR_LOGO_KEY } from "components/RaceSponsor";
 
 const renderFinalScreen = async (snailsConfig: ISnailWithTime[]) => {
     const pixiApp = new Application();
@@ -20,8 +25,10 @@ const renderFinalScreen = async (snailsConfig: ISnailWithTime[]) => {
     Promise.all(loadPromises).then(() => {
         pixiApp
             .init({
-                resizeTo: window,
+                width: 1000,
+                height: 720,
                 backgroundColor: 0xb7e7fa,
+                backgroundAlpha: 0,
                 sharedTicker: true,
             })
             .then(() => {
@@ -33,6 +40,7 @@ const renderFinalScreen = async (snailsConfig: ISnailWithTime[]) => {
 }
 
 function renderPodium(canvas: HTMLCanvasElement, stage: Container, snails: Snail[]) {
+
     const podium = Sprite.from("podium");
     podium.scale.set(0.15);
     podium.anchor.set(0.5);
@@ -107,3 +115,19 @@ const urlParams = new URLSearchParams(window.location.search);
 const snails = urlParams.get("snails");
 const snailsWithTime: ISnailWithTime[] = JSON.parse(snails!);
 renderFinalScreen(snailsWithTime);
+
+
+// vvvvvvvv Render the results and sponsor images vvvvvvvvvv
+const App = () => {
+    const raceSponsorLogo = localStorage.getItem(RACE_SPONSOR_LOGO_KEY);
+
+    return (
+        <React.Fragment>
+            {raceSponsorLogo && <img src={JSON.parse(raceSponsorLogo)} />}
+        </React.Fragment>
+    );
+};
+
+const domNode = document.getElementById("results");
+const root = createRoot(domNode!);
+root.render(<App />);

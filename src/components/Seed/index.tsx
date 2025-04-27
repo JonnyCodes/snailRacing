@@ -7,8 +7,10 @@ import useLocalStorage from "hooks/useLocalStorage";
 // styles
 import "./styles.css";
 
+export const SEED_KEY = "seed";
+
 export const Seed = () => {
-    const [seed, setSeed] = useLocalStorage("seed", getRandomSeed());
+    const [seed, setSeed] = useLocalStorage(SEED_KEY, getRandomSeed());
 
     const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         event.preventDefault();
