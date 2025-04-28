@@ -6,7 +6,7 @@ import gsap, { Sine } from "gsap";
 import seedrandom from "seedrandom";
 
 // types
-import { ISnail, ISnailWithTime } from "types/snail";
+import { ISnail, ISnailWithTime, RaceDetails } from "types/snail";
 import { BackgroundTexturesConfig } from "types/backgroundConfig";
 
 export interface GameProps {
@@ -16,7 +16,7 @@ export interface GameProps {
     raceSponsorName: string | null;
     raceSponsorLogo: string | null;
     randomSeed: string | null;
-    onComplete?: (snails: ISnailWithTime[]) => void;
+    onComplete?: (snails: ISnailWithTime[], raceDetails: RaceDetails) => void;
 }
 
 export class Game {
@@ -24,7 +24,7 @@ export class Game {
     private stage: Container;
 
     private snails: Snail[];
-    private raceDetails: {length: number, name?: string, sponsorName?: string, sponsorLogo?: string};
+    private raceDetails: RaceDetails;
     private raceStarted: boolean;
     private raceComplete: boolean;
     private showResults: boolean;
@@ -36,7 +36,7 @@ export class Game {
     private tickCount: number;
     private tickLengthMS: number;
 
-    private onCompleteCallback?: (snails: ISnailWithTime[]) => void;
+    private onCompleteCallback?: (snails: ISnailWithTime[], raceDetails: RaceDetails) => void;
 
     constructor(props: GameProps) {
         this.app = new Application();
@@ -47,9 +47,9 @@ export class Game {
         this.showResults = false;
         this.raceDetails = {
             length: props.raceLength * 600,
-            name: props.raceName || undefined,
-            sponsorName: props.raceSponsorName || undefined,
-            sponsorLogo: props.raceSponsorLogo || undefined,
+            raceName: props.raceName || undefined,
+            raceSponsorName: props.raceSponsorName || undefined,
+            raceSponsorLogo: props.raceSponsorLogo || undefined,
         };
         this.cameraContainer = new CameraContainer(this.raceDetails.length, window.innerHeight);
         this.elapsedMS = this.tickCount = 0;
@@ -198,11 +198,11 @@ export class Game {
                 });
 
                 // Add race name and sponsor banners
-                if (this.raceDetails.name || this.raceDetails.sponsorName) {
+                if (this.raceDetails.raceName || this.raceDetails.raceSponsorName) {
 
                     // This text object is used to measure the text and make calculations
                     const raceNameText = new Text({
-                        text: `${this.raceDetails.name ?? ""}${!!this.raceDetails.name && !!this.raceDetails.sponsorName ? " sponsored by " : ""}${this.raceDetails.sponsorName ?? ""}`,
+                        text: `${this.raceDetails.raceName ?? ""}${!!this.raceDetails.raceName && !!this.raceDetails.raceSponsorName ? " sponsored by " : ""}${this.raceDetails.raceSponsorName ?? ""}`,
                         style: {
                             fill: 0xdddddd,
                             fontFamily: "Super Lobster",
@@ -305,7 +305,7 @@ export class Game {
 
         setTimeout(() => {
             if (this.onCompleteCallback) {
-                this.onCompleteCallback(this.finishers);
+                this.onCompleteCallback(this.finishers, this.raceDetails);
             }
         }, 250);
     }

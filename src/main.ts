@@ -1,13 +1,12 @@
-import { ISnailWithTime } from "types/snail";
+import { ISnailWithTime, RaceDetails } from "types/snail";
 import { Game } from "./game";
-import { getRandomSeed } from "./utils";
 import { RACE_SPONSOR_LOGO_KEY, RACE_SPONSOR_NAME_KEY } from "components/RaceSponsor";
 import { RACE_NAME_KEY } from "components/RaceName";
 import { RACE_LENGTH_KEY } from "components/RaceLength";
 import { SEED_KEY } from "components/Seed";
 import { SNAILS_KEY } from "components/Snails";
 
-const onComplete = (snails: ISnailWithTime[], sponsorLogo?: string) => {
+const onComplete = (snails: ISnailWithTime[], raceDetails: RaceDetails) => {
     const urlSnails = snails.map((snail) => {
         return {
             ...snail,
@@ -19,9 +18,7 @@ const onComplete = (snails: ISnailWithTime[], sponsorLogo?: string) => {
 
     let url = `./finished.html?snails=${JSON.stringify(urlSnails)}`;
 
-    if (sponsorLogo) {
-        url += `?${RACE_SPONSOR_LOGO_KEY}=${sponsorLogo}`
-    }
+    url += "&" + Object.entries(raceDetails).filter(([_, val]) => !!val).map(([key, value]) => `${key}=${value}`).join("&");
 
     window.location.href = url;
 };
