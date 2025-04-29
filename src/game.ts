@@ -326,7 +326,7 @@ export class Game {
         rightButton.cursor = "hand";
         this.stage.addChild(rightButton);
 
-        rightButton.onclick = () => {
+        rightButton.onpointerup = () => {
             slideShowIndex++;
             snailSlideShow.position.x = uiBackground.x + ((uiBackground.width - (this.snails[0].container.width * 1.5)) / 2) - (slideShowIndex * ((this.snails[0].container.width + 50) * 1.5))
 
@@ -358,7 +358,7 @@ export class Game {
             leftButton.cursor = "hand";
         this.stage.addChild(leftButton);
 
-        leftButton.onclick = () => {
+        leftButton.onpointerup = () => {
             slideShowIndex--;
             snailSlideShow.position.x = uiBackground.x + ((uiBackground.width - (this.snails[0].container.width * 1.5)) / 2) - (slideShowIndex * ((this.snails[0].container.width + 50) * 1.5))
 
@@ -400,7 +400,7 @@ export class Game {
         startRaceButton.cursor = "hand";
         this.stage.addChild(startRaceButton);
 
-        startRaceButton.onclick = () => {
+        startRaceButton.onpointerup = () => {
             const itemsToDestroy = [fadeOut, uiBackground, startRaceButton, snailSlideShowMask, snailSlideShow, leftButton, rightButton];
             this.stage.removeChild(...itemsToDestroy);
 
