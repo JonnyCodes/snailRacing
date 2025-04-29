@@ -1,4 +1,4 @@
-import { Application, ApplicationOptions, Container, Sprite, Assets, Ticker, Texture, Text, Point, Graphics } from "pixi.js";
+import { Application, ApplicationOptions, Container, Sprite, Assets, Ticker, Texture, Text, Point, Graphics, RenderTexture } from "pixi.js";
 import { CameraContainer, ParallaxChild } from "./cameraContainer";
 import { Snail } from "./snail";
 import { getConfigValue, randomIntBetween } from "./utils";
@@ -114,32 +114,36 @@ export class Game {
                 const backgroundConfig: BackgroundTexturesConfig[] = [
                     { textureName: "cloudLayer", zIndex: 0.01, x: "tiled", y: 0 },
                     { textureName: "backgroundMountains", zIndex: 0.05, x: "tiled", y: 10, tint: 0xddebe2 },
-                    { textureName: "hills", zIndex: 0.075, x: "tiled", y: 100, tint: 0xafd6be },
-                    { textureName: "groundLayer", zIndex: 0.1, x: "tiled", y: 175, tint: 0x7dba68 },
+
                     {
                         textureName: "cloud1",
-                        zIndex: 0.11,
-                        x: { min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.11 },
+                        zIndex: 0.02,
+                        x: { min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.02 },
                         y: { min: -50, max: 100 },
                     },
                     {
                         textureName: "cloud2",
-                        zIndex: 0.22,
-                        x: { min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.22 },
+                        zIndex: 0.06,
+                        x: { min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.06 },
                         y: { min: -50, max: 100 },
                     },
+
+                    { textureName: "hills", zIndex: 0.075, x: "tiled", y: 100, tint: 0xafd6be },
+
                     {
                         textureName: "cloud3",
-                        zIndex: 0.33,
-                        x: { min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.33 },
+                        zIndex: 0.08,
+                        x: { min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.08 },
                         y: { min: -50, max: 100 },
                     },
                     {
                         textureName: "cloud4",
-                        zIndex: 0.44,
-                        x: { min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.44 },
+                        zIndex: 0.15,
+                        x: { min: 0, max: (this.cameraContainer.fullWidth + this.app.canvas.width) * 0.15 },
                         y: { min: -50, max: 100 },
                     },
+
+                    { textureName: "groundLayer", zIndex: 0.1, x: "tiled", y: 175, tint: 0x7dba68 },
                     { textureName: "signage", zIndex: 1, x: "tiled", y: trackStartY - 160 },
                     { textureName: "track", zIndex: 1, x: "tiled", y: "tiled", offsetY: trackStartY },
                 ];
@@ -244,16 +248,166 @@ export class Game {
                 finishLine.addChild(finishGraphics);
                 this.cameraContainer.addChildAtZ(finishLine, 1);
 
-                // Add snails to starting line
-                this.snails.reverse().forEach((snail, index) => {
-                    this.cameraContainer.addChildAtZ(snail.create());
-                    snail.updatePositionBy((startLineX - 50) + index * -10, (trackStartY - snail.container.height * 0.8) + index * ((this.app.canvas.height - trackStartY) / this.snails.length), true);
-                });
-
                 Ticker.shared.add((ticker: Ticker) => this.update(ticker));
 
-                this.startCountdownText(5, () => (this.raceStarted = true));
+                //Create the snails ready for showSnailsUI
+                this.snails.forEach((snail) => snail.create());
+
+                this.showSnailsUI();
+
+                // Position snails to starting line
+                // This is done after showSnailsUI, because we want to be able to position the snails for the renderTexture
+                this.snails.reverse().forEach((snail, index) => {
+                    this.cameraContainer.addChildAtZ(snail.container);
+                    snail.updatePositionBy((startLineX - 50) + index * -10, (trackStartY - snail.container.height * 0.8) + index * ((this.app.canvas.height - trackStartY) / this.snails.length), true);
+                });
             });
+    }
+
+    private showSnailsUI() {
+        const fadeOut = new Graphics()
+            .rect(0, 0, this.app.canvas.width, this.app.canvas.height)
+            .fill({color: 0x000000, alpha: 0.66})
+        this.stage.addChild(fadeOut);
+
+        const uiBackground = new Graphics()
+            .roundRect(0, 0, (this.app.canvas.width / 4) * 2, 700, 15)
+            .stroke({ color: 0x000000, width: 6 })
+            .fill(0xabc1d4);
+        uiBackground.position.set(this.app.canvas.width / 4, 100);
+        this.stage.addChild(uiBackground);
+
+        const renderTexture = RenderTexture.create({ width: (this.snails[0].container.width + 50) * this.snails.length, height: this.snails[0].container.height + 50, scaleMode: "linear" })
+        for (let i = 0 ; i < this.snails.length; i++) {
+            const snail = this.snails[i];
+            snail.container.position.set((snail.container.width + 50) * i, 0);
+
+            const snailName = new Text({
+                text: snail.config.name,
+                style: {
+                    fill: 0xffffff,
+                    fontFamily: "Super Lobster",
+                    fontSize: 30,
+                    stroke: { color: 0x000000, width: 4, join: "round" },
+                }
+            });
+            snailName.position.set(snail.container.x + ((snail.container.width - snailName.width) / 2), snail.container.y + snail.container.height + 5);
+            
+            this.app.renderer.render({
+                container: snail.container,
+                target: renderTexture,
+                clear: false
+            });
+            this.app.renderer.render({
+                container: snailName,
+                target: renderTexture,
+                clear: false
+            });
+        }
+
+        let slideShowIndex = 0;
+        const snailSlideShow = Sprite.from(renderTexture);
+        snailSlideShow.scale.set(1.5);
+        snailSlideShow.position.set(uiBackground.x + ((uiBackground.width - (this.snails[0].container.width * 1.5)) / 2), uiBackground.y + 100)
+        this.stage.addChild(snailSlideShow);
+
+        const snailSlideShowMask = new Graphics()
+            .roundRect(uiBackground.x + ((uiBackground.width - (this.snails[0].container.width * 1.5)) / 2), uiBackground.y + 100, (this.snails[0].container.width * 1.5) + 10, snailSlideShow.height)
+            .fill(0xffffff);
+        snailSlideShow.mask = snailSlideShowMask;
+
+        const rightButton = new Graphics()
+            .roundPoly(0, 0, 100, 3, 10, Math.PI / 2)
+            .stroke({color: 0x000000, width: 6})
+            .fill(0x1fdea8);
+        rightButton.scale.x = 0.6;
+        rightButton.position.set(snailSlideShow.x + 450, uiBackground.y + 250);
+        rightButton.interactive = true;
+        rightButton.cursor = "hand";
+        this.stage.addChild(rightButton);
+
+        rightButton.onclick = () => {
+            slideShowIndex++;
+            snailSlideShow.position.x = uiBackground.x + ((uiBackground.width - (this.snails[0].container.width * 1.5)) / 2) - (slideShowIndex * ((this.snails[0].container.width + 50) * 1.5))
+
+            if (slideShowIndex < this.snails.length - 1) {
+                rightButton.interactive = true;
+                rightButton.alpha = 1;
+            } else {
+                rightButton.interactive = false;
+                rightButton.alpha = 0.1;
+            }
+
+            if (slideShowIndex > 0) {
+                leftButton.interactive = true;
+                leftButton.alpha = 1;
+            } else {
+                leftButton.interactive = false;
+                leftButton.alpha = 0.1;
+            }
+        }
+
+        const leftButton = new Graphics()
+            .roundPoly(0, 0, 100, 3, 10, Math.PI / 2)
+            .stroke({color: 0x000000, width: 6})
+            .fill(0x1fdea8);
+            leftButton.scale.x = -0.6;
+            leftButton.position.set(snailSlideShow.x - 175, uiBackground.y + 250);
+            leftButton.interactive = false;
+            leftButton.alpha = 0.1;
+            leftButton.cursor = "hand";
+        this.stage.addChild(leftButton);
+
+        leftButton.onclick = () => {
+            slideShowIndex--;
+            snailSlideShow.position.x = uiBackground.x + ((uiBackground.width - (this.snails[0].container.width * 1.5)) / 2) - (slideShowIndex * ((this.snails[0].container.width + 50) * 1.5))
+
+            if (slideShowIndex > 0) {
+                leftButton.interactive = true;
+                leftButton.alpha = 1;
+            } else {
+                leftButton.interactive = false;
+                leftButton.alpha = 0.1;
+            }
+
+            if (slideShowIndex <= this.snails.length - 1) {
+                rightButton.interactive = true;
+                rightButton.alpha = 1;
+            } else {
+                rightButton.interactive = false;
+                rightButton.alpha = 0.1;
+            }
+        }
+
+        const startRaceButton = new Container();
+        const buttonBackground = new Graphics()
+            .roundRect(0, 0, 300, 50, 10)
+            .stroke({color: 0x000000, width: 6})
+            .fill(0x1fdea8)
+        startRaceButton.position.set(uiBackground.x + ((uiBackground.width - buttonBackground.width) / 2), uiBackground.height)
+        startRaceButton.addChild(buttonBackground);
+        const startText = new Text({
+            text: "Start Race",
+            style: {
+                fill: 0x000000,
+                fontFamily: "Super Lobster",
+                fontSize: 30,
+            },
+        });
+        startText.position.set((buttonBackground.width - startText.width) / 2, 7);
+        startRaceButton.addChild(startText)
+        startRaceButton.interactive = true;
+        startRaceButton.cursor = "hand";
+        this.stage.addChild(startRaceButton);
+
+        startRaceButton.onclick = () => {
+            const itemsToDestroy = [fadeOut, uiBackground, startRaceButton, snailSlideShowMask, snailSlideShow, leftButton, rightButton];
+            this.stage.removeChild(...itemsToDestroy);
+
+            itemsToDestroy.forEach((item) => item.destroy());
+
+            this.startCountdownText(5, () => (this.raceStarted = true));
+        }
     }
 
     private startCountdownText(val: number, callback: () => void) {
@@ -312,10 +466,12 @@ export class Game {
 
     private update(ticker: Ticker) {
         if (!this.showResults) {
-            this.tickCount += ticker.elapsedMS;
 
             if (this.raceStarted) {
                 this.elapsedMS += ticker.elapsedMS;
+                this.tickCount += ticker.elapsedMS;
+
+                // Every tick (tickLengthMS) change the snails speed
                 if (this.tickCount > this.tickLengthMS) {
                     this.tickCount = 0;
 

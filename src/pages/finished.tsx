@@ -1,15 +1,13 @@
 // libraries
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { Application, Assets, Container, Graphics, Point, Sprite, Text } from "pixi.js";
-
-// types
-import { ISnailWithTime } from "types/snail";
-import { Snail } from "../snail";
-import { RACE_SPONSOR_LOGO_KEY, RACE_SPONSOR_NAME_KEY } from "components/RaceSponsor";
 import { FinishTable } from "components/FinishTable";
 import { RACE_NAME_KEY } from "components/RaceName";
 import { Podium } from "components/Podium";
+
+// types
+import { ISnailWithTime } from "types/snail";
+import { RACE_SPONSOR_LOGO_KEY, RACE_SPONSOR_NAME_KEY } from "components/RaceSponsor";
 
 
 // vvvvvvvv Render the results and sponsor images vvvvvvvvvv

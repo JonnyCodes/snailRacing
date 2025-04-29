@@ -37,8 +37,6 @@ export class CameraContainer extends Container {
 
         this._parallaxLayers = {};
         this._cameraPosition = new Point(0, 0);
-
-        this.sortableChildren = true;
     }
 
     public addChildAtZ(child: ParallaxChild, zIndex: number = 1) {

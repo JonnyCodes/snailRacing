@@ -1,13 +1,14 @@
 TODO
 
-Before a race show a list of running snails names and which number they are - click to remove
 Fix snails getting too far ahead - limit first place snails speed to be the mid snail speed
-add snail shadows
+
 
 1st May deadline!!!!
 
 
 Extras
+add snail shadows
+Make snails 1 color
 Different snail faces - Snail customizer (stickers, face, colours)??
 Add different backgrounds/themes
 Obstacles - ways to stop/block snails (giant foot, lightning, etc)
