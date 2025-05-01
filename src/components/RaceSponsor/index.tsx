@@ -29,6 +29,7 @@ export const RaceSponsor = () => {
                 const formData = new FormData();
                 formData.append("image", (reader.result as string).match(regex)?.[1] as string);
                 formData.append("name", file.name);
+                formData.append("expiration", "1209600"); // 2 weeks
 
                 // TODO: Really shouldn't have API keys public!
                 const response = await fetch("https://api.imgbb.com/1/upload?key=e92e777ed6272d23354fa127633309d3", {
